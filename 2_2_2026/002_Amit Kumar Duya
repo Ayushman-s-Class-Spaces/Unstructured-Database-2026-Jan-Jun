@@ -1,0 +1,99 @@
+Got it. This is a classic MongoDB lab task. I’ll keep it simple and exactly how you can do it in **MongoDB Compass using the CLI (mongosh)**.
+
+Assume:
+
+* **Database name:** `college`
+* **Collection name:** `students`
+
+You can change names if your teacher gave different ones.
+
+---
+
+## Step 0: Open MongoDB Compass CLI
+
+1. Open **MongoDB Compass**
+2. Connect to your server
+3. Click **Mongosh (CLI)** at the bottom
+4. Run:
+
+```js
+use college
+```
+
+---
+
+## 1. ADD 5 student records
+
+### a) Insert **1 record** using `insertOne`
+
+```js
+db.students.insertOne({
+  roll: 1,
+  name: "Amit",
+  department: "computer",
+  year: 2
+})
+```
+
+---
+
+### b) Insert **4 records** using `insertMany`
+
+```js
+db.students.insertMany([
+  { roll: 2, name: "Rahul", department: "computer", year: 1 },
+  { roll: 3, name: "Sneha", department: "electronics", year: 3 },
+  { roll: 4, name: "Puja", department: "computer", year: 2 },
+  { roll: 5, name: "Arjun", department: "mechanical", year: 4 }
+])
+```
+
+---
+
+## 2. Remove the **first record**
+
+The “first record” usually means the first inserted document.
+
+```js
+db.students.deleteOne({})
+```
+
+This deletes **one document only**.
+
+If your teacher wants deletion by roll number (safer), use:
+
+```js
+db.students.deleteOne({ roll: 1 })
+```
+
+---
+
+## 3. Query all students in **"computer" department**
+
+```js
+db.students.find({ department: "computer" })
+```
+
+To make it readable:
+
+```js
+db.students.find({ department: "computer" }).pretty()
+```
+
+---
+
+## 4. Update **"computer" department** to **"BCA"**
+
+```js
+db.students.updateMany(
+  { department: "computer" },
+  { $set: { department: "BCA" } }
+)
+```
+
+---
+
+## (Optional) Verify final data
+
+```js
+db.students.find().pretty()

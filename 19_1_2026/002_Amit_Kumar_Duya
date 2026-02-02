@@ -1,0 +1,51 @@
+const express = require("express");
+const redis = require("redis");
+
+const app = express();
+const redisClient = redis.createClient();
+
+redisClient.connect();
+
+// config
+const LIMIT = 5;
+const WINDOW = 10;
+
+// middleware
+async function rateLimiter(req, res, next) {
+  try {
+    const ip = req.ip;
+    const key = `rl:${ip}`;
+
+    const tx = redisClient.multi();
+    tx.incr(key);
+    tx.ttl(key);
+
+    const [count, ttl] = await tx.exec();
+
+    // if key is new, set expiry
+    if (ttl === -1) {
+      await redisClient.expire(key, WINDOW);
+    }
+
+    if (count > LIMIT) {
+      return res.status(429).json({
+        error: "Too many requests. Please wait."
+      });
+    }
+
+    next();
+  } catch (err) {
+    console.error("Rate limiter error:", err);
+    next(); // fail open
+  }
+}
+
+app.use(rateLimiter);
+
+app.get("/", (req, res) => {
+  res.send("Request allowed");
+});
+
+app.listen(3001, () => {
+  console.log("Server running on port 3001");
+});

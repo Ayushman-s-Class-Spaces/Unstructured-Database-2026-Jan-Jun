@@ -1,0 +1,50 @@
+MongoDB Lab Assignment
+Objective:
+To perform basic MongoDB operations using MongoDB Compass CLI.
+
+Step 1: Open MongoDB Compass CLI
+1. Open MongoDB Compass
+2. Connect to mongodb://localhost:27017
+3. Open Mongosh CLI
+4. Use the database:
+
+use college
+Step 2: Insert Records
+a) Insert one record
+
+db.students.insertOne({
+  roll: 41,
+  name: "Soham",
+  department: "computer",
+  year: 2
+})
+
+b) Insert multiple records
+
+db.students.insertMany([
+  { roll: 2, name: "Rahul", department: "computer", year: 1 },
+  { roll: 3, name: "Sneha", department: "electronics", year: 3 },
+  { roll: 4, name: "Puja", department: "computer", year: 2 },
+  { roll: 5, name: "Arjun", department: "mechanical", year: 4 }
+])
+
+Step 3: Delete the First Record
+
+db.students.deleteOne({ roll: 1 })
+
+Step 4: Query Computer Department Students
+
+db.students.find({ department: "computer" }).pretty()
+
+Step 5: Update Department Name
+
+db.students.updateMany(
+  { department: "computer" },
+  { $set: { department: "BCA" } }
+)
+
+Final Verification
+
+db.students.find().pretty()
+
+

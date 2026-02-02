@@ -1,0 +1,72 @@
+Lab Assignment
+Date: 19/01/2026
+Name: Soham Pal
+Roll No: 041
+Subject: Unstructured Database / Redis Lab
+Topic: Redis Key Commands & Node.js Timed Rate Limiter
+Objective
+To understand basic Redis key-value operations and implement a timed rate limiter using Redis and Node.js.
+Part A: Redis Key-Value Operations
+1. SET Key Value
+SET counter 10
+2. GET Key Value
+GET counter
+3. INCR Command
+INCR counter
+4. EXPIRE Command
+EXPIRE counter 60
+The key 'counter' will be automatically deleted after 60 seconds.
+Part B: Node.js Server – Timed Rate Limiter using Redis
+Description
+A simple rate limiter is implemented using Express.js and Redis. Each IP address is allowed a maximum number of requests within a fixed time window.
+Rate Limiting Configuration
+Window Size: 10 seconds
+Maximum Requests: 5 per IP
+Code Implementation
+
+const express = require("express");
+const { createClient } = require("redis");
+
+const app = express();
+
+const redisClient = createClient({
+  url: "redis://localhost:6379"
+});
+
+redisClient.connect();
+
+const WINDOW_SIZE = 10;
+const MAX_REQUESTS = 5;
+
+app.use(async (req, res, next) => {
+  try {
+    const ip = req.ip;
+    const key = `rate:${ip}`;
+
+    const current = await redisClient.incr(key);
+
+    if (current === 1) {
+      await redisClient.expire(key, WINDOW_SIZE);
+    }
+
+    if (current > MAX_REQUESTS) {
+      return res.status(429).json({
+        error: "Too many requests. Try again later."
+      });
+    }
+
+    next();
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
+});
+
+app.get("/", (req, res) => {
+  res.send("Request allowed");
+});
+
+app.listen(3000, () => {
+  console.log("Rate limiter running on port 3000");
+});
+
